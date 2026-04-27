@@ -1,0 +1,255 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "critical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e38f3084-f5c0-48e8-a314-1f283f5ad772"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Is critical"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "788da212-5d73-41a2-b52f-83139253f615",
+                    "leftValue": "={{ $json.status }}",
+                    "rightValue": "warning",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Is warning"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "12265d57-bbcb-41df-b05f-199ff19fc39c",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "campaigns",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -32
+      ],
+      "id": "9974545f-4ce8-438c-99ab-e7096c8a6bd9",
+      "name": "Webhook",
+      "webhookId": "3ccd33db-bcb7-46f0-8d73-3915491f2eae"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "body.campaigns",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        224,
+        -32
+      ],
+      "id": "f94a8a7e-22e0-4e38-b565-de7839ede145",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=> ﻿:warning:﻿  ATENCION CRITICO.\n﻿\n*Campaña:* {{ $json.name }}\n*Metrica:* {{ $json.metric }}\n﻿\nDEBAJO DEL UMBRAL",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -128
+      ],
+      "id": "8091242e-dcf7-46b8-8c52-11b2e3bb1cb7",
+      "name": "Discord",
+      "webhookId": "f39e1cff-ca7d-4a33-92bb-62845cae442e",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "yhRFYFIs0ncq0bvC",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/demo/logger",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "CampaignReport",
+              "value": "={{ $json }}"
+            },
+            {
+              "name": "type",
+              "value": "Warnig"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        64
+      ],
+      "id": "ae90810e-e986-4bae-b276-b30169737ee8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        192
+      ],
+      "id": "f6c444d0-3161-4fb4-ab47-727216a2d355",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://app:3000/api/demo/logger",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "Error"
+            },
+            {
+              "name": "data",
+              "value": "={{ $json }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        192,
+        192
+      ],
+      "id": "9bff02ad-6d5e-44ef-a08d-7723d75a06c6",
+      "name": "HTTP Request1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6f8cba77-221e-415f-945a-dacc4c8f6953",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4515be1561b70efe451ffa4067c9dca30dc253f6e55c9e5b643985cf6a9b1121"
+  },
+  "id": "p1xOnD9Z8n1ACDaP",
+  "tags": []
+}

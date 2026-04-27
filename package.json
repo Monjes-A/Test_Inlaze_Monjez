@@ -1,0 +1,46 @@
+{
+  "name": "test_inlaze_monjez",
+  "version": "1.0.0",
+  "packageManager": "pnpm@10.18.3",
+  "description": "Backend API + BullMQ worker + Prisma + Pino (postgres via pino-postgres CLI)",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch src/server.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "postinstall": "prisma generate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openrouter/sdk": "^0.12.21",
+    "@prisma/adapter-pg": "^7.8.0",
+    "@prisma/client": "7.8.0",
+    "axios": "^1.15.2",
+    "bullmq": "^5.76.2",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "ioredis": "^5.10.1",
+    "luxon": "^3.7.2",
+    "node-cron": "^4.2.1",
+    "p-limit": "^7.3.0",
+    "p-retry": "^8.0.0",
+    "pg": "^8.20.0",
+    "pino": "^10.3.1",
+    "pino-postgres": "^0.0.41",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/luxon": "^3.7.1",
+    "@types/node": "^22.19.17",
+    "@types/node-cron": "^3.0.11",
+    "@types/pg": "^8.20.0",
+    "prisma": "7.8.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
